@@ -1,7 +1,13 @@
 import { Redirect, Route } from 'react-router-dom';
 import { IonApp, IonRouterOutlet, setupIonicReact } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
-import Home from './pages/Home';
+import { useContext, useEffect } from 'react';
+import MemoryTabs from './pages/MemoryTabs';
+import BadMemories from './pages/BadMemories';
+import GoodMemories from './pages/GoodMemories';
+import NewMemory from './pages/NewMemory';
+import MemoriesContextProvider from './data/MemoriesContextProvider';
+import MemoriesContext from './data/memories-context';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -24,19 +30,29 @@ import './theme/variables.css';
 
 setupIonicReact();
 
-const App: React.FC = () => (
-  <IonApp>
-    <IonReactRouter>
-      <IonRouterOutlet>
-        <Route exact path="/home">
-          <Home />
-        </Route>
-        <Route exact path="/">
-          <Redirect to="/home" />
-        </Route>
-      </IonRouterOutlet>
-    </IonReactRouter>
-  </IonApp>
-);
+const App: React.FC = () => {
+  const memoriesCtx = useContext(MemoriesContext);
+  const {initContext} = memoriesCtx;
+  // localStorage.clear();
+  // indexedDB.deleteDatabase("Disc");
+  useEffect(() => {
+    initContext();
+  }, [initContext]);
+  return(
+    <IonApp>
+      <IonReactRouter>
+        <MemoriesContextProvider>
+          <IonRouterOutlet id="main">
+          <Route path="/tabs" component={MemoryTabs}/>
+          <Route path="/BadMemories" component={BadMemories}/>
+          <Route path="/GoodMemories" component={GoodMemories}/>
+          <Route path='/NewMemory' component={NewMemory}/>
+          <Redirect exact from="/" to="/tabs" />
+          </IonRouterOutlet>
+        </MemoriesContextProvider>
+      </IonReactRouter>
+    </IonApp>
+  );
+};
 
 export default App;
